@@ -1,6 +1,5 @@
 package com.example.springservelt.Config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,8 +15,11 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -47,20 +49,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         /* Se define el modo de autenticación, mediante una clase que retorna UserDetails con usuario, contraseña y
-           el rol. Luego con passwordEcoder se decodifica la constraseña del usuario
+           el rol. Luego con passwordEcoder se decodifica la contraseña del usuario
         */
         auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // metodo de spring para retornar el tipo de cifrado a usar
+        // método de spring para retornar el tipo de cifrado a usar
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public HttpFirewall looseHttpFirewall() {
-        // Metodo de spring para controlar los errores generados cuando ingresar caracteres especiales a una url como http://localhost/;h"o;la
+        // Método de spring para controlar los errores generados cuando ingresas caracteres especiales a una url como http://localhost/;h"o;la
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowSemicolon(true); // Determina si se permite el punto y coma en la URL (es decir, variables de matriz).
         firewall.setAllowBackSlash(true); // Determina si una barra invertida "\" o una barra invertida codificada en URL "%5C" deben permitirse en la ruta o no
